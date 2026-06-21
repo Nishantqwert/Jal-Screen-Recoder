@@ -1,4 +1,4 @@
-name: Build Android App
+ name: Build Android App
 
 on:
   push:
@@ -40,11 +40,10 @@ jobs:
       run: |
         cd project/jal-screen-recoder-app/android
         chmod +x gradlew
-        ./gradlew assembleRelease
+        ./gradlew assembleDebug
 
-    - name: Upload APK
+    - name: Upload Completed APK
       uses: actions/upload-artifact@v4
       with:
-        name: Jal-Screen-Recorder-APK
+        name: Jal-Screen-Recorder-Working-APK
         path: "**/*.apk"
-
