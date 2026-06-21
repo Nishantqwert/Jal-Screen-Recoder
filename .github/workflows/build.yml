@@ -1,0 +1,26 @@
+name: Build Android APK
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Extract and Build APK
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          unzip jal-screen-recoder-app.zip -d project
+          cd project
+          echo '{"cli":{"version":">= 10.0.0"},"build":{"preview":{"distribution":"internal"}}}' > eas.json
+          eas build --platform android --profile preview --non-interactive
