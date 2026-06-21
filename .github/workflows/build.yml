@@ -46,4 +46,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Jal-Screen-Recorder-APK
-        path: project/jal-screen-recoder-app/android/app/build/outputs/apk/release/app-release-unsigned.apk
+        path: "**/*.apk"
+
