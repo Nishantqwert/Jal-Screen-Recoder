@@ -10,10 +10,9 @@ jobs:
       uses: actions/checkout@v4
     - name: Unzip Project
       run: unzip jal-screen-recoder-app.zip -d project
-    - name: Inject Android Recording Permissions
+    - name: Inject Master Android Recording Permissions
       run: |
         cd project/jal-screen-recoder-app
-        # This node script automatically updates your app.json to request recording and service permissions
         node -e "
         const fs = require('fs');
         if (fs.existsSync('app.json')) {
@@ -22,14 +21,17 @@ jobs:
           if (!data.expo.android) data.expo.android = {};
           data.expo.android.permissions = [
             'RECORD_AUDIO',
+            'MODIFY_AUDIO_SETTINGS',
             'WRITE_EXTERNAL_STORAGE',
+            'READ_EXTERNAL_STORAGE',
+            'READ_MEDIA_VIDEO',
+            'READ_MEDIA_AUDIO',
             'FOREGROUND_SERVICE',
-            'FOREGROUND_SERVICE_MEDIA_PROJECTION'
+            'FOREGROUND_SERVICE_MEDIA_PROJECTION',
+            'SYSTEM_ALERT_WINDOW'
           ];
           fs.writeFileSync('app.json', JSON.stringify(data, null, 2));
-          console.log('Successfully injected recorder permissions!');
-        } else {
-          console.log('app.json not found, skipping patch.');
+          console.log('Master recording permissions successfully injected!');
         }
         "
     - name: Set up Node.js
@@ -44,6 +46,11 @@ jobs:
       run: |
         cd project/jal-screen-recoder-app
         npx expo prebuild --platform android
+    - name: Force Offline JavaScript Bundling
+      run: |
+        cd project/jal-screen-recoder-app
+        mkdir -p android/app/src/main/assets
+        npx react-native bundle --platform android --dev false --entry-file node_modules/expo/AppEntry.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
     - name: Force Test Key Signing
       run: sed -i '/buildTypes {/a \        release { signingConfig signingConfigs.debug }' project/jal-screen-recoder-app/android/app/build.gradle
     - name: Set up JDK 17
